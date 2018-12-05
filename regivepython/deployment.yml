@@ -1,0 +1,37 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: bdance-app
+spec:
+  selector:
+    app: bdanceapp
+  ports:
+    - protocol: "TCP"
+      # Port accessible inside cluster
+      port: 8081
+      # Port to forward to inside the pod
+      targetPort: 5000
+      # Port accessible outside cluster
+      nodePort: 30003
+  type: LoadBalancer
+ 
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bdanceappdeployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bdanceapp
+    spec:
+      containers:
+        - name: bdanceapp
+          image: k9ert/bdance-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+        

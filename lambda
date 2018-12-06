@@ -1,0 +1,32 @@
+// Lambda
+const request = require('sync-request');
+const traceHeaders = ['x-request-id', 'x-b3-traceid', 'x-b3-spanid', 'x-b3-parentspanid', 'x-b3-sampled', 'x-b3-Flags', 'x-ot-span-context']
+
+const urlpackage = require('url');
+
+module.exports = { main: function (event, context) {
+    console.log(" [lambda-regiving] event.extensions.request "+JSON.stringify(event.extensions.request.url));
+    var urlSuffix = event.extensions.request.url
+    console.log("[lambda-regiving]  event.extensions.request.url "+ event.extensions.request.url);
+    var idFromURL = urlSuffix.replace("/?id=", "");
+    console.log("[lambda-regiving] idFromURL "+idFromURL);
+    var url = `${process.env.GATEWAY_URL}/electronics/orders/`+idFromURL;
+    var userEnvironment = `${process.env.USER_ENVIRONMENT}`;
+    console.log("[lambda-regiving] In Lambda with url: "+url)
+    var retval = "NotYetSet"
+    var res = request('GET', url, { "Content-type": "application/json" });
+    console.log("Body1 " +String.fromCharCode(res.getBody()))
+    var jsonBody = JSON.parse( res.getBody())
+    console.log("jsonBody.totalPrice.formattedValue " + jsonBody.totalPrice.formattedValue  );
+    return jsonBody.totalPrice.formattedValue;
+    }
+}
+  
+// Dependencies  
+{
+  "name": "app",
+  "version": "0.0.1",
+  "dependencies": {
+    "sync-request": "6.0.0"
+  }
+}
